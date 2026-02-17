@@ -63,6 +63,23 @@ export async function handlePut(req, res, baseDir) {
     const parsedBody = await parseJSONBody(req);
     const sanitizedBody = sanitizeInput(parsedBody);
 
+    // Validate required fields
+    const requiredFields = ["title", "content", "category", "timestamp"];
+    const missingFields = requiredFields.filter(
+      (field) => !sanitizedBody[field],
+    );
+
+    if (missingFields.length > 0) {
+      return sendResponse(
+        res,
+        400,
+        "application/json",
+        JSON.stringify({
+          error: `Missing required fields: ${missingFields.join(", ")}`,
+        }),
+      );
+    }
+
     // Read existing notes
     const notes = await getData(baseDir);
 
@@ -71,31 +88,31 @@ export async function handlePut(req, res, baseDir) {
       return sendResponse(res, 404, "text/plain", "Note not found");
     }
 
-    // Update note
-    notes[noteIndex] = {
+    // Preserve the original timestamp format? Or update consistently?
+    // I'd recommend storing dates consistently in ISO format and formatting on display
+    // But to maintain compatibility, let's keep the original timestamp format
+    const updatedNote = {
       ...notes[noteIndex],
       ...sanitizedBody,
-      updatedAt: new Date().toISOString(), // optional
+      updatedAt: new Date().toISOString(), // Track when it was updated
     };
 
-    // Save updated notes
+    // Update note
+    notes[noteIndex] = updatedNote;
+
+    // Save updated notes to the CORRECT location (data/data.json)
     await fs.writeFile(
-      path.join(baseDir, "db.json"), // assuming db.json stores notes
+      path.join(baseDir, "data", "data.json"), // ✅ Fixed: now writes to data/data.json
       JSON.stringify(notes, null, 2),
+      "utf8",
     );
 
-    sendResponse(
-      res,
-      200,
-      "application/json",
-      JSON.stringify(notes[noteIndex]),
-    );
+    sendResponse(res, 200, "application/json", JSON.stringify(updatedNote));
   } catch (err) {
     console.error("PUT error:", err);
     sendResponse(res, 500, "text/plain", "Update failed");
   }
 }
-
 export async function handleMotivation(req, res) {
   res.writeHead(200, {
     "Content-Type": "text/event-stream",
