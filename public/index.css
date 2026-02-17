@@ -210,6 +210,15 @@ form button:hover {
 }
 
 /* =====================
+   HIDE TITLE ON MOBILE
+===================== */
+@media (max-width: 767px) {
+  .site-title-page {
+    display: none;
+  }
+}
+
+/* =====================
    NOTE CARD COLLAPSE
 ===================== */
 
