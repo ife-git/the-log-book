@@ -10,10 +10,20 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 export async function handleGet(req, res, baseDir) {
-  const data = await getData(baseDir);
-  const content = JSON.stringify(data);
-
-  sendResponse(res, 200, "application/json", content);
+  try {
+    const data = await getData(baseDir);
+    console.log("Data length:", data.length); // Check Vercel logs
+    console.log("baseDir:", baseDir); // See where it's looking
+    sendResponse(res, 200, "application/json", JSON.stringify(data));
+  } catch (err) {
+    console.error("GET error:", err);
+    sendResponse(
+      res,
+      500,
+      "application/json",
+      JSON.stringify({ error: err.message }),
+    );
+  }
 }
 
 export async function handlePost(req, res, baseDir) {
