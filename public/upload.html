@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload · The Log Book</title>
+    <link rel="stylesheet" href="/index.css" />
+  </head>
+
+  <body>
+    <!-- Site Header / Navigation -->
+    <header class="site-header">
+      <nav id="main-navigation">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/notes.html">Read Notes</a></li>
+          <li><a href="/upload.html">Upload Notes</a></li>
+        </ul>
+
+        <a href="/" class="site-title-page">The Log Book</a>
+      </nav>
+    </header>
+
+    <!-- Page Content -->
+    <main>
+      <header class="page-header">
+        <h1>New Log Entry</h1>
+        <p>Log thoughts, bugs, lessons, or ideas.</p>
+      </header>
+
+      <form id="log-form">
+        <!-- Title -->
+        <label for="title">Title</label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          placeholder="Write a short title"
+          required
+        />
+
+        <!-- Content -->
+        <label for="content">Details</label>
+        <textarea
+          id="content"
+          name="content"
+          rows="5"
+          placeholder="Today I learned..."
+          required
+        ></textarea>
+
+        <!-- Category -->
+        <label for="category">Category</label>
+        <select id="category" name="category" required>
+          <option value="learning">Learning</option>
+          <option value="debugging">Debugging</option>
+          <option value="ideas">Ideas</option>
+          <option value="reflection">Reflection</option>
+        </select>
+
+        <!-- Timestamp -->
+        <label for="timestamp">Date & Time</label>
+        <input type="datetime-local" id="timestamp" name="timestamp" required />
+
+        <!-- Submit -->
+        <button type="submit">Add Entry</button>
+
+        <p class="form-message">
+          All logged notes can be viewed on the
+          <a href="/notes.html">Notes</a> page.
+        </p>
+      </form>
+    </main>
+    <script src="/upload.js"></script>
+  </body>
+</html>

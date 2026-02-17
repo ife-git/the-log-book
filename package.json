@@ -1,0 +1,21 @@
+{
+  "name": "the-log-book",
+  "version": "1.0.0",
+  "description": "A platform for logging in your ideas",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "Ife Daramola",
+  "license": "ISC",
+  "dependencies": {
+    "sanitize-html": "^2.17.0",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}

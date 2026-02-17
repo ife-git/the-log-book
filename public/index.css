@@ -1,0 +1,316 @@
+/* =====================
+   RESET
+===================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =====================
+   THEME
+===================== */
+:root {
+  --bg-main: #000000;
+  --bg-card: #060606;
+  --text-main: #eeeeee;
+  --text-muted: #aaaaaa;
+  --border-light: #1f1f1f;
+}
+
+/* =====================
+   GLOBAL
+===================== */
+body {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  line-height: 1.6;
+  padding: 1.5rem;
+}
+
+/* =====================
+   SITE HEADER / NAV
+===================== */
+.site-header {
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+}
+
+#main-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+#main-navigation ul {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+}
+
+#main-navigation a {
+  text-decoration: none;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+#main-navigation a:hover {
+  text-decoration: underline;
+}
+
+.site-title-page {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* =====================
+   PAGE CONTENT
+===================== */
+main {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.page-header p {
+  color: var(--text-muted);
+}
+
+/* =====================
+   FORM
+===================== */
+form {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  padding: 1.5rem;
+  border-radius: 4px;
+}
+
+form label {
+  display: block;
+  margin-top: 1.2rem;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
+
+form input,
+form textarea,
+form select {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  font-family: inherit;
+  background-color: #111111; /* Added for better contrast */
+  color: #eeeeee; /* Added for better contrast */
+}
+
+form textarea {
+  resize: vertical;
+}
+
+form button {
+  margin-top: 1.5rem;
+  padding: 0.7rem;
+  font-size: 1rem;
+  background-color: #000; /* Changed from #111 */
+  color: #eee; /* Changed from #fff */
+  border: 2px solid #000;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+form button:hover {
+  border-color: #eee;
+  border-radius: 5px;
+  opacity: 0.9;
+}
+
+.form-message {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.form-message a {
+  color: var(--text-main);
+  text-decoration: underline;
+}
+
+/* =====================
+   NOTE CARDS (NOTES PAGE)
+===================== */
+
+.cards-container {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.note-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  padding: 1.5rem;
+  border-radius: 4px;
+}
+
+.note-card h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-details {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+/* =====================
+   RESPONSIVE (DESKTOP)
+===================== */
+@media (min-width: 768px) {
+  body {
+    padding: 2.5rem;
+  }
+
+  #main-navigation {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  form {
+    padding: 2rem;
+  }
+}
+
+/* =====================
+   NOTE CARD COLLAPSE
+===================== */
+
+.note-text-wrapper {
+  max-height: 4.5em; /* ~3 lines */
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.note-card.expanded .note-text-wrapper {
+  max-height: 1000px;
+}
+
+/* =====================
+   READ MORE BUTTON
+===================== */
+
+.note-card {
+  position: relative; /* needed for absolute positioning of edit button */
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: var(--bg-card, #fff);
+  margin-bottom: 1rem;
+}
+
+/* Edit button top-right */
+.edit-btn {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  padding: 0.3rem 0.6rem;
+  background-color: #000;
+  color: var(--text-main, #fff);
+  border: 1px solid #eeeeee;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.edit-btn:hover {
+  border-color: #838181;
+}
+
+.edit-btn:focus-visible {
+  outline: none;
+  border-color: #eeeeee;
+}
+
+/* Buttons at the bottom */
+.note-actions {
+  display: flex;
+  justify-content: space-between; /* Read More left, Delete right */
+  margin-top: 2rem; /* push down so edit button doesn't overlap */
+  gap: 0.5rem;
+}
+
+.read-more-btn,
+.delete-btn {
+  padding: 0.4rem 0.8rem;
+  background-color: #000;
+  color: var(--text-main, #fff);
+  border: 1px solid #eeeeee;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.read-more-btn:hover,
+.delete-btn:hover {
+  border-color: #838181;
+}
+
+.read-more-btn:focus-visible,
+.delete-btn:focus-visible {
+  outline: none;
+  border-color: #eeeeee;
+}
+
+/* =====================
+   DATETIME PICKER ICON
+===================== */
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+.form-message {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.form-message.success {
+  color: #4caf50;
+}
+
+.form-message.error {
+  color: #ff4d4d;
+}
+
+.form-message.info {
+  color: #aaaaaa;
+}
