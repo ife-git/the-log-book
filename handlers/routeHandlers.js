@@ -3,17 +3,17 @@ import { deleteNote } from "../utils/deleteNote.js";
 import { sendResponse } from "../utils/sendResponse.js";
 import { parseJSONBody } from "../utils/parseJSONBody.js";
 import { addNewNotes } from "../utils/addNewNotes.js";
+import { updateNote } from "../utils/updateNote.js"; // NEW import
 import { sanitizeInput } from "../utils/sanitizeInput.js";
 import { uploadEvents } from "../events/uploadEvents.js";
 import { motivationalMessages } from "../data/motivationalMessages.js";
-import fs from "node:fs/promises";
-import path from "node:path";
+// REMOVED: fs and path imports - no longer needed
 
 export async function handleGet(req, res, baseDir) {
   try {
     const data = await getData(baseDir);
     console.log("Data length:", data.length); // Check Vercel logs
-    console.log("baseDir:", baseDir); // See where it's looking
+    // console.log("baseDir:", baseDir); // Optional: remove if not needed
     sendResponse(res, 200, "application/json", JSON.stringify(data));
   } catch (err) {
     console.error("GET error:", err);
@@ -30,16 +30,19 @@ export async function handlePost(req, res, baseDir) {
   try {
     const parsedBody = await parseJSONBody(req);
     const sanitizedBody = sanitizeInput(parsedBody);
-    //await addNewNotes(sanitizedBody, baseDir);
+
     const newNote = await addNewNotes(sanitizedBody, baseDir);
 
     uploadEvents.emit("notes-added", sanitizedBody);
 
     sendResponse(res, 201, "application/json", JSON.stringify(newNote));
-
-    //  sendResponse(res, 201, "application/json", JSON.stringify(sanitizedBody));
   } catch (err) {
-    sendResponse(res, 400, "text/plain", err.message);
+    sendResponse(
+      res,
+      400,
+      "application/json",
+      JSON.stringify({ error: err.message }),
+    );
   }
 }
 
@@ -48,18 +51,40 @@ export async function handleDelete(req, res, baseDir) {
     const id = req.url.split("/")[2];
 
     if (!id) {
-      return sendResponse(res, 400, "text/plain", "Missing ID");
+      return sendResponse(
+        res,
+        400,
+        "application/json",
+        JSON.stringify({ error: "Missing ID" }),
+      );
     }
 
     await deleteNote(id, baseDir);
 
-    return sendResponse(res, 204, "text/plain", "");
+    return sendResponse(res, 204, "application/json", "");
   } catch (err) {
     if (err.message === "Note not found") {
-      return sendResponse(res, 404, "text/plain", "Note not found");
+      return sendResponse(
+        res,
+        404,
+        "application/json",
+        JSON.stringify({ error: "Note not found" }),
+      );
     }
-
-    return sendResponse(res, 500, "text/plain", "Delete failed");
+    if (err.message.includes("Invalid note ID format")) {
+      return sendResponse(
+        res,
+        400,
+        "application/json",
+        JSON.stringify({ error: "Invalid ID format" }),
+      );
+    }
+    return sendResponse(
+      res,
+      500,
+      "application/json",
+      JSON.stringify({ error: err.message }),
+    );
   }
 }
 
@@ -67,7 +92,12 @@ export async function handlePut(req, res, baseDir) {
   try {
     const id = req.url.split("/")[2]; // extract ID from /api/:id
     if (!id) {
-      return sendResponse(res, 400, "text/plain", "Missing ID");
+      return sendResponse(
+        res,
+        400,
+        "application/json",
+        JSON.stringify({ error: "Missing ID" }),
+      );
     }
 
     const parsedBody = await parseJSONBody(req);
@@ -90,61 +120,60 @@ export async function handlePut(req, res, baseDir) {
       );
     }
 
-    // Read existing notes
-    const notes = await getData(baseDir);
-
-    const noteIndex = notes.findIndex((n) => n.id === id);
-    if (noteIndex === -1) {
-      return sendResponse(res, 404, "text/plain", "Note not found");
-    }
-
-    // Preserve the original timestamp format? Or update consistently?
-    // I'd recommend storing dates consistently in ISO format and formatting on display
-    // But to maintain compatibility, let's keep the original timestamp format
-    const updatedNote = {
-      ...notes[noteIndex],
-      ...sanitizedBody,
-      updatedAt: new Date().toISOString(), // Track when it was updated
-    };
-
-    // Update note
-    notes[noteIndex] = updatedNote;
-
-    // Save updated notes to the CORRECT location (data/data.json)
-    await fs.writeFile(
-      path.join(baseDir, "data", "data.json"), // ✅ Fixed: now writes to data/data.json
-      JSON.stringify(notes, null, 2),
-      "utf8",
-    );
+    // Use the new updateNote utility instead of file operations
+    const updatedNote = await updateNote(id, sanitizedBody, baseDir);
 
     sendResponse(res, 200, "application/json", JSON.stringify(updatedNote));
   } catch (err) {
     console.error("PUT error:", err);
-    sendResponse(res, 500, "text/plain", "Update failed");
+
+    if (err.message === "Note not found") {
+      return sendResponse(
+        res,
+        404,
+        "application/json",
+        JSON.stringify({ error: "Note not found" }),
+      );
+    }
+    if (err.message.includes("Invalid note ID format")) {
+      return sendResponse(
+        res,
+        400,
+        "application/json",
+        JSON.stringify({ error: "Invalid ID format" }),
+      );
+    }
+
+    sendResponse(
+      res,
+      500,
+      "application/json",
+      JSON.stringify({ error: err.message }),
+    );
   }
 }
+
 export async function handleMotivation(req, res) {
-  res.writeHead(200, {
-    "Content-Type": "text/event-stream",
-    "Cache-Control": "no-cache",
-    Connection: "keep-alive",
-  });
+  // Change from SSE to simple REST endpoint
+  try {
+    // Get a random message
+    const randomIndex = Math.floor(Math.random() * motivationalMessages.length);
+    const message = motivationalMessages[randomIndex];
 
-  let i = 0; // start index
-
-  const interval = setInterval(() => {
-    // send the current message
-    res.write(
-      `data: ${JSON.stringify({
-        motif: motivationalMessages[i],
-      })}\n\n`,
+    // Return as JSON
+    sendResponse(
+      res,
+      200,
+      "application/json",
+      JSON.stringify({ motif: message }),
     );
-
-    // move to next message, loop back if at end
-    i = (i + 1) % motivationalMessages.length;
-  }, 3000); // every 3 seconds
-
-  req.on("close", () => {
-    clearInterval(interval);
-  });
+  } catch (err) {
+    console.error("Motivation error:", err);
+    sendResponse(
+      res,
+      500,
+      "application/json",
+      JSON.stringify({ error: "Failed to get motivation message" }),
+    );
+  }
 }

@@ -1,15 +1,27 @@
-const eventSource = new EventSource("/api/motivation");
-
+// Replace EventSource with polling
 const liveContainer = document.getElementById("live-container");
 
-// Handle live price updates
-eventSource.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  const motif = data.motif;
-  liveContainer.textContent = motif;
-};
+async function fetchMotivation() {
+  try {
+    const response = await fetch("/api/motivation");
 
-// Handle connection loss
-eventSource.onerror = () => {
-  console.log("Connection lost. Attempting to reconnect...");
-};
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (data.motif) {
+      liveContainer.textContent = data.motif;
+    }
+  } catch (err) {
+    console.log("Failed to fetch motivation:", err);
+    liveContainer.textContent = "✨ Stay curious, keep logging! ✨"; // Fallback message
+  }
+}
+
+// Fetch immediately
+fetchMotivation();
+
+// Then fetch every 10 seconds
+setInterval(fetchMotivation, 3000);

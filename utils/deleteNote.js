@@ -1,22 +1,27 @@
-import path from "node:path";
-import fs from "node:fs/promises";
-import { getData } from "./getData.js";
+import { ObjectId } from "mongodb";
+import { getCollection } from "./mongoDB.js";
 
 export async function deleteNote(id, baseDir) {
-  const dataFilePath = path.join(baseDir, "data", "data.json");
+  try {
+    const collection = await getCollection();
 
-  const notes = await getData(baseDir);
+    // Convert string id to MongoDB ObjectId
+    const objectId = new ObjectId(id);
 
-  const filteredNotes = notes.filter((note) => note.id !== id);
+    // Delete the note with matching _id
+    const result = await collection.deleteOne({ _id: objectId });
 
-  // Optional: Check if note existed
-  if (filteredNotes.length === notes.length) {
-    throw new Error("Note not found");
+    // Check if a note was actually deleted
+    if (result.deletedCount === 0) {
+      throw new Error("Note not found");
+    }
+
+    return true; // Success
+  } catch (err) {
+    // Handle invalid ObjectId format
+    if (err.name === "BSONError" || err.message.includes("ObjectId")) {
+      throw new Error("Invalid note ID format");
+    }
+    throw new Error(`Delete failed: ${err.message}`);
   }
-
-  await fs.writeFile(
-    dataFilePath,
-    JSON.stringify(filteredNotes, null, 2),
-    "utf8",
-  );
 }

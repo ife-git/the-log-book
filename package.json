@@ -12,6 +12,8 @@
   "author": "Ife Daramola",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^17.3.1",
+    "mongodb": "^5.9.2",
     "sanitize-html": "^2.17.0",
     "uuid": "^13.0.0"
   },

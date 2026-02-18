@@ -1,25 +1,26 @@
-import path from "node:path";
-import fs from "node:fs/promises";
-import { getData } from "./getData.js";
-import crypto from "node:crypto";
+import { getCollection } from "./mongoDB.js";
 
 export async function addNewNotes(newNotes, baseDir) {
   try {
-    const notes = await getData(baseDir);
+    const collection = await getCollection();
 
-    const noteWithId = {
-      id: crypto.randomUUID(),
+    // MongoDB will generate its own _id, but we'll also keep your existing fields
+    const noteToInsert = {
+      ...newNotes,
+      createdAt: new Date().toISOString(), // Track when it was created
+    };
+
+    // Insert into MongoDB
+    const result = await collection.insertOne(noteToInsert);
+
+    // Return in the same format as before (with id as string)
+    const insertedNote = {
+      id: result.insertedId.toString(),
       ...newNotes,
     };
 
-    notes.push(noteWithId);
-
-    const dataFilePath = path.join(baseDir, "data", "data.json");
-
-    await fs.writeFile(dataFilePath, JSON.stringify(notes, null, 2), "utf8");
-
-    return noteWithId;
+    return insertedNote;
   } catch (err) {
-    throw new Error(err.message);
+    throw new Error(`Failed to add note: ${err.message}`);
   }
 }
