@@ -6,6 +6,8 @@ import {
   handleDelete,
   handlePut,
   handleMotivation,
+  handleDebug, // ← Add this import
+  handleTestDB, // ← Add this import
 } from "./handlers/routeHandlers.js";
 
 const PORT = 8000;
@@ -31,6 +33,16 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "PUT" && req.url.startsWith("/api")) {
     return await handlePut(req, res, __dirname);
   }
+
+  // 👇 ADD DEBUG ROUTES HERE (before motivation and static files)
+  if (req.method === "GET" && req.url === "/api/debug") {
+    return await handleDebug(req, res, __dirname);
+  }
+
+  if (req.method === "GET" && req.url === "/api/test-db") {
+    return await handleTestDB(req, res, __dirname);
+  }
+
   if (req.url === "/api/motivation") {
     return await handleMotivation(req, res, __dirname);
   }
