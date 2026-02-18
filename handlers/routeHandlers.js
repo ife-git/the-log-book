@@ -177,3 +177,76 @@ export async function handleMotivation(req, res) {
     );
   }
 }
+
+// Add this new handler for debugging
+export async function handleDebug(req, res, baseDir) {
+  try {
+    const debug = {
+      env: {
+        hasMongoURI: !!process.env.MONGODB_URI,
+        hasDBName: !!process.env.DB_NAME,
+        hasCollectionName: !!process.env.COLLECTION_NAME,
+        nodeEnv: process.env.NODE_ENV,
+        // Show first few chars of URI to verify it's there (safe)
+        uriPrefix: process.env.MONGODB_URI
+          ? process.env.MONGODB_URI.substring(0, 20) + "..."
+          : "not set",
+        dbName: process.env.DB_NAME || "not set",
+        collectionName: process.env.COLLECTION_NAME || "not set",
+      },
+      vercel: {
+        vercelEnv: process.env.VERCEL_ENV || "not set",
+        vercelUrl: process.env.VERCEL_URL || "not set",
+      },
+    };
+
+    sendResponse(res, 200, "application/json", JSON.stringify(debug, null, 2));
+  } catch (err) {
+    sendResponse(
+      res,
+      500,
+      "application/json",
+      JSON.stringify({ error: err.message }),
+    );
+  }
+}
+
+// Add this to test MongoDB connection directly
+export async function handleTestDB(req, res, baseDir) {
+  try {
+    const { getCollection } = await import("../utils/mongoDB.js");
+    const collection = await getCollection();
+
+    // Try to count documents
+    const count = await collection.countDocuments();
+
+    // Try to find one document
+    const sample = await collection.findOne({});
+
+    sendResponse(
+      res,
+      200,
+      "application/json",
+      JSON.stringify({
+        success: true,
+        documentCount: count,
+        hasSample: !!sample,
+        sampleId: sample ? sample._id.toString() : null,
+        dbName: process.env.DB_NAME,
+        collectionName: process.env.COLLECTION_NAME,
+      }),
+    );
+  } catch (err) {
+    sendResponse(
+      res,
+      500,
+      "application/json",
+      JSON.stringify({
+        success: false,
+        error: err.message,
+        name: err.name,
+        code: err.code,
+      }),
+    );
+  }
+}
