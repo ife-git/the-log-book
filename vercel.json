@@ -16,8 +16,32 @@
       "dest": "/api/index.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "/public/$1"
+      "src": "/notes.html",
+      "dest": "/public/notes.html"
+    },
+    {
+      "src": "/upload.html",
+      "dest": "/public/upload.html"
+    },
+    {
+      "src": "/index.css",
+      "dest": "/public/index.css"
+    },
+    {
+      "src": "/notes.js",
+      "dest": "/public/notes.js"
+    },
+    {
+      "src": "/upload.js",
+      "dest": "/public/upload.js"
+    },
+    {
+      "src": "/motivation.js",
+      "dest": "/public/motivation.js"
+    },
+    {
+      "src": "/",
+      "dest": "/public/index.html"
     }
   ]
 }

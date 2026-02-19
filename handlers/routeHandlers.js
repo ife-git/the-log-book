@@ -28,15 +28,22 @@ export async function handleGet(req, res, baseDir) {
 
 export async function handlePost(req, res, baseDir) {
   try {
+    console.log("📝 POST request received");
     const parsedBody = await parseJSONBody(req);
+    console.log("Parsed body:", parsedBody);
+
     const sanitizedBody = sanitizeInput(parsedBody);
+    console.log("Sanitized body:", sanitizedBody);
 
     const newNote = await addNewNotes(sanitizedBody, baseDir);
+    console.log("New note created:", newNote);
 
     uploadEvents.emit("notes-added", sanitizedBody);
 
     sendResponse(res, 201, "application/json", JSON.stringify(newNote));
   } catch (err) {
+    console.error("❌ POST error:", err.message);
+    console.error("Full error:", err);
     sendResponse(
       res,
       400,
