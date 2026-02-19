@@ -323,3 +323,123 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .form-message.info {
   color: #aaaaaa;
 }
+/* =====================
+   ULTRA-COMPACT DATETIME INPUT FOR MOBILE
+===================== */
+
+/* Base datetime styling */
+input[type="datetime-local"] {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 1rem;
+  font-family: inherit;
+  background-color: #111111;
+  color: #eeeeee;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* MOBILE-FIRST COMPACT VIEW */
+@media (max-width: 768px) {
+  /* Make the datetime input much more compact */
+  input[type="datetime-local"] {
+    padding: 0.4rem 0.5rem;
+    font-size: 14px;
+    min-height: 36px; /* Shorter but still tappable */
+    letter-spacing: -0.3px; /* Tighten text spacing */
+  }
+
+  /* Force the input to display as a single line */
+  input[type="datetime-local"]::-webkit-datetime-edit {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* Make each segment more compact */
+  input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 1px;
+  }
+
+  input[type="datetime-local"]::-webkit-datetime-edit-text {
+    padding: 0 1px;
+  }
+
+  input[type="datetime-local"]::-webkit-datetime-edit-day-field,
+  input[type="datetime-local"]::-webkit-datetime-edit-month-field,
+  input[type="datetime-local"]::-webkit-datetime-edit-year-field,
+  input[type="datetime-local"]::-webkit-datetime-edit-hour-field,
+  input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
+    padding: 0 1px;
+  }
+
+  /* Smaller calendar icon */
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    padding: 0;
+    width: 16px;
+    height: 16px;
+    margin-left: 2px;
+  }
+
+  /* Make the form overall more compact */
+  form {
+    padding: 1rem;
+  }
+
+  form label {
+    margin-top: 0.8rem;
+    margin-bottom: 0.2rem;
+    font-size: 0.9rem;
+  }
+
+  form input,
+  form textarea,
+  form select {
+    padding: 0.5rem;
+    font-size: 14px;
+  }
+
+  form button {
+    padding: 0.6rem;
+    font-size: 0.95rem;
+    margin-top: 1.2rem;
+  }
+}
+
+/* EXTRA SMALL DEVICES (phones under 400px) */
+@media (max-width: 400px) {
+  input[type="datetime-local"] {
+    padding: 0.3rem 0.4rem;
+    font-size: 13px;
+    min-height: 32px;
+  }
+
+  /* Make the date display even tighter */
+  input[type="datetime-local"]::-webkit-datetime-edit-day-field,
+  input[type="datetime-local"]::-webkit-datetime-edit-month-field,
+  input[type="datetime-local"]::-webkit-datetime-edit-year-field,
+  input[type="datetime-local"]::-webkit-datetime-edit-hour-field,
+  input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
+    padding: 0;
+    min-width: 18px;
+  }
+
+  /* Hide the AM/PM if it appears (but it shouldn't in 24h) */
+  input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
+    display: none;
+  }
+
+  /* Even smaller calendar icon */
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Alternative: If you want to split date and time inputs (optional)
+   This would require HTML changes, so not included here */
