@@ -1,11 +1,9 @@
-// Import your server's request handler
 import { handleRequest } from "../server.js";
 
 export default async function handler(req, res) {
-  // Get the base directory (project root)
   const baseDir = process.cwd();
 
-  // Add CORS headers if needed
+  // Add CORS headers
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
@@ -13,22 +11,36 @@ export default async function handler(req, res) {
   );
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // Handle preflight requests
+  // Handle preflight
   if (req.method === "OPTIONS") {
     res.status(200).end();
     return;
   }
 
-  // Create a simpler request object that matches what your handlers expect
-  const simpleReq = {
+  // Collect body for Vercel
+  let body = "";
+
+  // Vercel provides the body as a string or buffer
+  if (req.body) {
+    // If body is already a string or buffer
+    body = req.body;
+  } else {
+    // Otherwise, collect it from the stream
+    for await (const chunk of req) {
+      body += chunk;
+    }
+  }
+
+  // Create a unified request object that works with your handlers
+  const unifiedReq = {
     method: req.method,
     url: req.url,
+    headers: req.headers,
+    body: body, // Store raw body
+    // Add event methods for backward compatibility
     on: (event, callback) => {
-      if (event === "data") {
-        // Handle body data if needed
-        if (req.body) {
-          callback(req.body);
-        }
+      if (event === "data" && body) {
+        callback(body);
       }
       if (event === "end") {
         callback();
@@ -36,11 +48,5 @@ export default async function handler(req, res) {
     },
   };
 
-  // Add body if it exists
-  if (req.body) {
-    simpleReq.body = req.body;
-  }
-
-  // Call your existing request handler
-  await handleRequest(simpleReq, res, baseDir);
+  await handleRequest(unifiedReq, res, baseDir);
 }
