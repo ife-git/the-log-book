@@ -14,51 +14,58 @@ import {
   handleDelete,
   handlePut,
   handleMotivation,
-  handleDebug, // ← Add this import
-  handleTestDB, // ← Add this import
+  handleDebug,
+  handleTestDB,
 } from "./handlers/routeHandlers.js";
 
 const PORT = 8000;
 const __dirname = import.meta.dirname;
 
-const server = http.createServer(async (req, res) => {
+// ✅ EXPORT this function for Vercel
+export async function handleRequest(req, res, baseDir) {
   // DELETE (most specific first)
   if (req.method === "DELETE" && req.url.startsWith("/api/")) {
-    return await handleDelete(req, res, __dirname);
+    return await handleDelete(req, res, baseDir);
   }
 
   // POST
   if (req.method === "POST" && req.url === "/api") {
-    return await handlePost(req, res, __dirname);
+    return await handlePost(req, res, baseDir);
   }
 
   // GET exact /api
   if (req.method === "GET" && req.url === "/api") {
-    return await handleGet(req, res, __dirname);
+    return await handleGet(req, res, baseDir);
   }
 
   // PUT /api/:id
   if (req.method === "PUT" && req.url.startsWith("/api")) {
-    return await handlePut(req, res, __dirname);
+    return await handlePut(req, res, baseDir);
   }
 
-  // 👇 ADD DEBUG ROUTES HERE (before motivation and static files)
+  // DEBUG ROUTES
   if (req.method === "GET" && req.url === "/api/debug") {
-    return await handleDebug(req, res, __dirname);
+    return await handleDebug(req, res, baseDir);
   }
 
   if (req.method === "GET" && req.url === "/api/test-db") {
-    return await handleTestDB(req, res, __dirname);
+    return await handleTestDB(req, res, baseDir);
   }
 
   if (req.url === "/api/motivation") {
-    return await handleMotivation(req, res, __dirname);
+    return await handleMotivation(req, res, baseDir);
   }
 
   // Static files
-  return await serveStatic(req, res, __dirname);
-});
+  return await serveStatic(req, res, baseDir);
+}
 
-server.listen(PORT, () => {
-  console.log(`Connected on port: ${PORT}`);
-});
+// ✅ This runs ONLY when you run node server.js locally
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const server = http.createServer((req, res) =>
+    handleRequest(req, res, __dirname),
+  );
+  server.listen(PORT, () => {
+    console.log(`✅ Local server connected on port: ${PORT}`);
+  });
+}

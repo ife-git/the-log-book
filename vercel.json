@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.js",
+      "src": "api/index.js",
       "use": "@vercel/node"
     },
     {
@@ -13,31 +13,11 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server.js"
-    },
-    {
-      "src": "/api/test-db",
-      "dest": "server.js"
-    },
-    {
-      "src": "/api/debug",
-      "dest": "server.js"
-    },
-    {
-      "src": "/api/motivation",
-      "dest": "server.js"
-    },
-    {
-      "src": "/(.*)\\.(js|css|png|jpg|ico|svg)",
-      "dest": "/public/$1.$2"
+      "dest": "/api/index.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/public/$1.html"
-    },
-    {
-      "src": "/",
-      "dest": "/public/index.html"
+      "dest": "/public/$1"
     }
   ]
 }
