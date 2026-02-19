@@ -17,36 +17,39 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Collect body for Vercel
-  let body = "";
-
-  // Vercel provides the body as a string or buffer
-  if (req.body) {
-    // If body is already a string or buffer
-    body = req.body;
-  } else {
-    // Otherwise, collect it from the stream
-    for await (const chunk of req) {
-      body += chunk;
-    }
-  }
-
   // Create a unified request object that works with your handlers
   const unifiedReq = {
     method: req.method,
     url: req.url,
     headers: req.headers,
-    body: body, // Store raw body
+    // Add a custom body property that will work with parseJSONBody
+    body: null,
     // Add event methods for backward compatibility
     on: (event, callback) => {
-      if (event === "data" && body) {
-        callback(body);
+      if (event === "data" && req.body) {
+        // If body is already a string, send it
+        if (typeof req.body === "string") {
+          callback(req.body);
+        }
+        // If body is an object, stringify it
+        else if (typeof req.body === "object") {
+          callback(JSON.stringify(req.body));
+        }
       }
       if (event === "end") {
         callback();
       }
     },
   };
+
+  // Store the raw body for later use
+  if (req.body) {
+    if (typeof req.body === "string") {
+      unifiedReq.body = req.body;
+    } else {
+      unifiedReq.body = JSON.stringify(req.body);
+    }
+  }
 
   await handleRequest(unifiedReq, res, baseDir);
 }
