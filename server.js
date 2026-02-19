@@ -1,3 +1,11 @@
+console.log("🔥🔥🔥 SERVER.JS IS EXECUTING 🔥🔥🔥");
+console.log("Current directory:", process.cwd());
+console.log("Node version:", process.version);
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("MONGODB_URI exists:", !!process.env.MONGODB_URI);
+console.log("DB_NAME:", process.env.DB_NAME);
+console.log("COLLECTION_NAME:", process.env.COLLECTION_NAME);
+
 import http from "node:http";
 import { serveStatic } from "./utils/serveStatic.js";
 import {
